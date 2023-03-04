@@ -16,8 +16,15 @@ def add_to_bag(request, item_id):
     """ Add a quantity of the specified product to the shopping bag """
 
     product = get_object_or_404(Product, pk=item_id)
-    quantity = int(request.POST.get('quantity'))
     redirect_url = request.POST.get('redirect_url')
+    try:
+        quantity = int(request.POST.get('quantity'))
+    except ValueError as e:
+        messages.error(
+                    request,
+                    f'ValueError: {e} - Quantity must be a digit.')
+        return redirect(redirect_url)
+
     size = None
     if 'product_size' in request.POST:
         size = request.POST['product_size']
@@ -59,7 +66,13 @@ def adjust_bag(request, item_id):
     """Adjust the quantity of the specified product to the specified amount"""
 
     product = get_object_or_404(Product, pk=item_id)
-    quantity = int(request.POST.get('quantity'))
+    try:
+        quantity = int(request.POST.get('quantity'))
+    except ValueError as e:
+        messages.error(
+                    request,
+                    f'ValueError: {e} - Quantity must be a digit.')
+        return redirect(reverse('view_bag'))
     size = None
     if 'product_size' in request.POST:
         size = request.POST['product_size']
